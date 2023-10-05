@@ -6,8 +6,8 @@ const hostSchema = new mongoose.Schema({
     ip_address: String,
     mac_address: String,
     status: String,
-    device_type: String,
-    os:String
+    os:String,
+    action: String,
 })
 
 const HOST = mongoose.model('HOST', hostSchema)

@@ -3,6 +3,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const app = express()
+const socket = require("socket.io");
 
 app.use(bodyParser.json())
 app.use(cors())
@@ -23,11 +24,31 @@ mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true&serverSelecti
 let isMongoDBConnected = false;
 mongoose.connection.on("connected", () => {
     if (!isMongoDBConnected) {
-        console.log("MongoDB connection successfull");
+        console.log("MongoDB connection successful");
         isMongoDBConnected = true;
     }
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Listening at port ${port}`)
 })
+
+// const io = socket(server, {
+//     cors: {
+//       origin: "http://localhost:3000",
+//       credentials: true,
+//     },
+//   });
+
+//   io.on("connection", (socket)=>{
+//     console.log("A user connected...")
+
+//     socket.on('host-updated',()=>{
+//         io.emit('host-updated')
+//     })
+    
+//     socket.on('disconnect',()=>{
+//         console.log("A user disconnected")
+//     })
+//   })
+  

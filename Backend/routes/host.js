@@ -16,12 +16,13 @@ router.get('/api/agent-do', (req, res) => {
 
 })
 
-router.get('/api/scan', async(req, res) => {
+router.get('/api/scan', (req, res) => {
     console.log("scan initiated")
     eventEmitter.emit('agentScan')
-    const hostData = await HOST.find()
-    res.json(hostData)
-    
+    eventEmitter.once('scan_result',async ()=>{
+        const hostData = await HOST.find()
+        res.json(hostData)
+    })
 })
 
 router.get('/api/hostInfo',(req, res)=>{
@@ -40,14 +41,33 @@ router.post('/scan_result', async(req, res) => {
     console.log("body:", req.body)
     try{
         const hostData = req.body
-        const insertedData = await HOST.insertMany(hostData)
-        // res.status(201).json({ status: 'successful', insertedHosts });
-        res.end()
+        await HOST.deleteMany({});
+        const insertedHosts = await HOST.insertMany(hostData)
+        eventEmitter.emit('scan_result')
+        res.status(201).json({ status: 'successful', insertedHosts });
     }
     catch(err){
         console.log(err)
         res.status(500).json({error: "Error saving data"})
     }
     
+})
+
+router.post('/api/agent-update-host/:host_ip', async(req, res)=>{
+    const host_ip = req.params.host_ip
+    const _action = req.body.action
+    console.log(host_ip, _action)
+    try{
+        const updated_host = await HOST.findOneAndUpdate(
+            { 'ip_address': host_ip }, 
+            { $set: { 'action': _action } },
+            { new: true }
+          );
+          console.log(`Updated host: ${updated_host}`)
+        console.log(updated_host)
+    }catch(err){
+        console.log(`error updating the host:${err}`)
+        res.json({update_status: "Error updating"})
+    }
 })
 module.exports = router
