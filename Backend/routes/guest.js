@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
-const HOST = mongoose.model('HOST')
+const GUEST = mongoose.model('GUEST')
 const { EventEmitter } = require('events')
 
 const eventEmitter = new EventEmitter()
@@ -20,18 +20,18 @@ router.get('/api/scan', (req, res) => {
     console.log("scan initiated")
     eventEmitter.emit('agentScan')
     eventEmitter.once('scan_result',async ()=>{
-        const hostData = await HOST.find()
-        res.json(hostData)
+        const guestData = await GUEST.find()
+        res.json(guestData)
     })
 })
 
-router.get('/api/hostInfo',(req, res)=>{
-    HOST.find()
+router.get('/api/guestInfo',(req, res)=>{
+    GUEST.find()
     .then((result)=>{
         res.json(result)
     })
     .catch((err)=>{
-        console.log("cannot get the hostsinfo"+err)
+        console.log("cannot get the guestsinfo"+err)
         res.json({status:"Error"})
     })
 })
@@ -40,11 +40,11 @@ router.post('/scan_result', async(req, res) => {
     console.log('scan result')
     console.log("body:", req.body)
     try{
-        const hostData = req.body
-        await HOST.deleteMany({});
-        const insertedHosts = await HOST.insertMany(hostData)
+        const guestData = req.body
+        await GUEST.deleteMany({});
+        const insertedGuests = await GUEST.insertMany(guestData)
         eventEmitter.emit('scan_result')
-        res.status(201).json({ status: 'successful', insertedHosts });
+        res.status(201).json({ status: 'successful', insertedGuests });
     }
     catch(err){
         console.log(err)
@@ -53,20 +53,21 @@ router.post('/scan_result', async(req, res) => {
     
 })
 
-router.post('/api/agent-update-host/:host_ip', async(req, res)=>{
-    const host_ip = req.params.host_ip
+router.post('/api/agent-update-guest/:guest_ip', async(req, res)=>{
+    const guest_ip = req.params.guest_ip
     const _action = req.body.action
-    console.log(host_ip, _action)
+    console.log(guest_ip, _action)
     try{
-        const updated_host = await HOST.findOneAndUpdate(
-            { 'ip_address': host_ip }, 
+        const updated_guest = await GUEST.findOneAndUpdate(
+            { 'ip_address': guest_ip }, 
             { $set: { 'action': _action } },
             { new: true }
           );
-          console.log(`Updated host: ${updated_host}`)
-        console.log(updated_host)
+          console.log(`Updated guest: ${updated_guest}`)
+        console.log(updated_guest)
+        res.json({update_status: "successful updation"})
     }catch(err){
-        console.log(`error updating the host:${err}`)
+        console.log(`error updating the guest:${err}`)
         res.json({update_status: "Error updating"})
     }
 })

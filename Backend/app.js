@@ -9,10 +9,14 @@ app.use(bodyParser.json())
 app.use(cors())
 
 //require models
-require('./models/host')
-
+require('./models/guest')
+require('./models/user')
+require('./models/agent')
 //use routes
-app.use(require('./routes/host'))
+app.use(require('./routes/guest'))
+app.use(require('./routes/user'))
+app.use(require('./routes/agent'))
+
 
 const port = 5000 || process.env.PORT
 
