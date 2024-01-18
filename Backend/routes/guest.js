@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
-const GUEST = mongoose.model('GUEST')
+const GUEST = mongoose.model('Guest')
 const { EventEmitter } = require('events')
 
 const eventEmitter = new EventEmitter()
@@ -71,4 +71,19 @@ router.post('/api/agent-update-guest/:guest_ip', async(req, res)=>{
         res.json({update_status: "Error updating"})
     }
 })
+
+
+router.post('/api/delete_all_guests', async(req, res)=>{
+    try{
+        await GUEST.deleteMany({})
+        res.status(200).json({
+            "message":"All guests deleted successfully"
+        })
+    } catch (err) {
+        res.status(500).json({
+            "message":"Error ocurred while deleting guests"
+        })
+    }
+})
+
 module.exports = router

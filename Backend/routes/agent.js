@@ -1,46 +1,18 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
-const AGENT = mongoose.model('AGENT')
-const USER = mongoose.model('USER')
+const GUEST = require('../models/guest')
+const AGENT = mongoose.model('Agent')
+const USER = mongoose.model('User')
+const protect = require('../middleware/authMiddleware')
+const {
+    createAgent, updateAgent, usersAgent
+} = require('../controllers/agentControllers')
 
-router.post('/api/create-agent', async (req, res) => {
-    try {
-        console.log(req.body)
-        const Agent = req.body
-        const newAgent = new AGENT(Agent)
-        await newAgent.save()
-        res.status(201).json({ message: 'Agent created successfully', agent: newAgent });
+router.post('/create', protect, createAgent)
+router.post('/update', protect, updateAgent)
+router.get('/get-my-agents', protect, usersAgent)
 
-    } catch (err) {
-        res.status(500).json({ message: 'Internal server error' })
-    }
-})
-
-router.post('/api/update-agent', async (req, res) => {
-    try {
-        console.log(req.body)
-        const { Agent_id, hostname, ip_address, mac_address, status, os } = req.body
-
-        const agent = AGENT.findByIdAndUpdate(
-            Agent_id,
-            {
-                hostname,
-                ip_address,
-                mac_address,
-                status,
-                os
-            }
-        )
-        if (!agent) {
-            return res.status(401).json({ error: `Can't update Agent` })
-        }
-        res.status(201).json({ message: 'Agent Updated successfully', agent: newAgent });
-
-    } catch (err) {
-        res.status(500).json({ message: 'Internal server error' })
-    }
-})
 
 router.get('/api/all-agent', (req, res) => {
     const user_id = req.body.user_id
@@ -62,4 +34,10 @@ router.get('/api/all-agent', (req, res) => {
 
 })
 
+
+
+router.post('/api/deploy', (req, res)=>{
+    const deploy_info = req.body
+    console.log(deploy_info)
+})
 module.exports = router

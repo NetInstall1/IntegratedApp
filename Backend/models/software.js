@@ -5,7 +5,8 @@ const softwareSchema = mongoose.Schema({
     software_name: String,
     software_public_url: String,
     software_version: String,
+    agent_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Agent'}
 })
 
-const SOFTWARE = mongoose.model('SOFTWARE', softwareSchema)
-module.exports = SOFTWARE
+const Software = mongoose.model('Software', softwareSchema)
+module.exports = Software

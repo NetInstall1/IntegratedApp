@@ -8,14 +8,17 @@ const userSchema = mongoose.Schema({
     last_login: {
         type: String,
         default: "Never",
-    },
-    agent_list: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'AGENT'
-        }
-    ]
+    }
 })
 
-const USER = mongoose.model('USER', userSchema)
-module.exports = USER
+userSchema.methods.matchPassword = async(enteredPass)=>{
+    if(this.user_pass == enteredPass){
+        return true
+    }
+    return false
+}
+
+
+
+const User = mongoose.model('User', userSchema)
+module.exports = User
