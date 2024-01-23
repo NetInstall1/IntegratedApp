@@ -9,6 +9,8 @@ const {
     createAgent, updateAgent, usersAgent
 } = require('../controllers/agentControllers')
 
+
+//route: /api/agent/...
 router.post('/create', protect, createAgent)
 router.post('/update', protect, updateAgent)
 router.get('/get-my-agents', protect, usersAgent)

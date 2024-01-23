@@ -6,7 +6,8 @@ const guestSchema = new mongoose.Schema({
     mac_address: String,
     status: String,
     os:String,
-    action: String,
+    action: {type: String},
+    details:{type: mongoose.Schema.Types.Mixed},
     agent_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Agent'},
     installed_software:[{type: mongoose.Schema.Types.ObjectId, ref: 'Software'}]
 })

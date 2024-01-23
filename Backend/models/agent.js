@@ -8,7 +8,6 @@ const agentSchema = mongoose.Schema({
     hostname: String,
     ip_address: {
         type: String,
-        required: true
     },
     mac_address: String,
     status: String,
@@ -24,7 +23,7 @@ const agentSchema = mongoose.Schema({
     },
     ip_range: {
         type: String,
-        required: true
+        // required: true
     },
     
     user_id: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}

@@ -26,17 +26,18 @@ const usersAgent = asyncHandler(async (req, res)=>{
 
 
 const createAgent = asyncHandler(async (req, res)=>{
-
+    console.log(req.body)
     const { agent_name, guest_user, guest_pass, ip_range} = req.body
     const user_id = req.user
     console.log(agent_name, guest_user, guest_pass, user_id)
 
     if(!ip_range || !agent_name || !guest_user || !guest_pass){
-        throw new Error('Some inforamtion is missing')
+        return res.status(400).json({ error: 'Some information is missing' });
     }
     const agent_name_unique = await Agent.find({agent_name})
-    if(!agent_name_unique){
-        throw new Error('Agent with this name already exists')
+    console.log(agent_name_unique)
+    if(agent_name_unique){
+        return res.status(400).json({ error: 'Agent with this name already exists' });
     }
 
     await Agent.create({
@@ -68,6 +69,7 @@ const deleteAgent = asyncHandler(async(req, res)=>{
     }
     throw new Error('Error deleting Agent')
 })
+
 
 module.exports = {
     createAgent,

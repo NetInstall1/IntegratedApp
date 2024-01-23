@@ -56,16 +56,39 @@ router.post('/scan_result', async(req, res) => {
 router.post('/api/agent-update-guest/:guest_ip', async(req, res)=>{
     const guest_ip = req.params.guest_ip
     const _action = req.body.action
-    console.log(guest_ip, _action)
+    const details = req.body.details
+    console.log(req.body)
     try{
         const updated_guest = await GUEST.findOneAndUpdate(
             { 'ip_address': guest_ip }, 
-            { $set: { 'action': _action } },
+            { $set: { 'action': _action , details: details }},
             { new: true }
           );
           console.log(`Updated guest: ${updated_guest}`)
         console.log(updated_guest)
         res.json({update_status: "successful updation"})
+    }catch(err){
+        console.log(`error updating the guest:${err}`)
+        res.json({update_status: "Error updating"})
+    }
+})
+
+
+router.post('/api/guest-sys-info/:guest_ip', async(req, res)=>{
+    var details = req.body
+
+    // console.log(req.body)
+    // details = JSON.stringify(details)
+    console.log(details)
+    const guest_ip = req.params.guest_ip
+    try{
+        const updated_guest = await GUEST.findOneAndUpdate(
+            { 'ip_address': guest_ip }, 
+            { $set:{details: details}},
+            { new: true }
+          );
+        console.log(updated_guest)
+        res.json({update_status: "successful updation", data: updated_guest})
     }catch(err){
         console.log(`error updating the guest:${err}`)
         res.json({update_status: "Error updating"})
