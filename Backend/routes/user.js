@@ -1,40 +1,25 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const USER = mongoose.model('USER');
 
 // POST request to authenticate a user
 router.post('/api/authenticate', async (req, res) => {
-    try {
-        const { user_email, user_pass } = req.body;
+  try {
+      const { user_email, user_pass } = req.body;
+      const user = await USER.findOne({ user_email });
 
-        // Find the user by email
-        const date = new Date();
-        const dateTimeOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        const dateTimeFormatted = date.toLocaleString(undefined, dateTimeOptions);
-        console.log(dateTimeFormatted);
-        const user = await USER.findOneAndUpdate(
-            { user_email, },
-            { last_login: dateTimeFormatted }
-        );
+      if (!user || user.user_pass !== user_pass) {
+          return res.status(401).json({ message: 'Authentication failed. User not found or password incorrect.' });
+      }
 
-        if (!user) {
-    // User not found
-          return res.status(401).json({ message: 'Authentication failed. User not found.' });
-    }
+      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
 
-    // Check if the provided password matches the user's password
-    if (user.user_pass !== user_pass) {
-      // Password doesn't match
-      return res.status(401).json({ message: 'Authentication failed. Password incorrect.' });
-    }
-
-    // Authentication successful
-    res.status(200).json({ message: 'Sign In successful', user });
+      res.status(200).json({ message: 'Sign In successful', user, token });
   } catch (error) {
-    // Handle any errors that occur during authentication
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
   }
 });
 
@@ -59,5 +44,22 @@ router.post('/api/create-user', async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+  router.post('/api/validate-token', (req, res) => {
+    const token = req.headers['authorization'];
+
+    if (!token) {
+        return res.status(401).json({ message: 'No token provided.' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Failed to authenticate token.' });
+        }
+
+        // Token is valid
+        res.status(200).json({ message: 'Token is valid', userId: decoded.userId });
+    });
+});
 
 module.exports = router;

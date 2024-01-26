@@ -1,22 +1,34 @@
 const express = require('express')
+require('dotenv').config();
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const app = express()
-const socket = require("socket.io");
+const path = require('path');
+
+
 
 app.use(bodyParser.json())
 app.use(cors())
+
+
+// JWT Secret Key
+app.set('jwtSecretKey', process.env.JWT_SECRET);
+
 
 //require models
 require('./models/guest')
 require('./models/user')
 require('./models/agent')
+require('./models/upload')
 //use routes
 app.use(require('./routes/guest'))
 app.use(require('./routes/user'))
 app.use(require('./routes/agent'))
+app.use(require('./routes/upload'))
 
+const fs = require('fs');
+const uploadPath = path.join(__dirname, 'uploads');
 
 const port = 5000 || process.env.PORT
 
@@ -25,7 +37,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true&serverSelecti
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
+
 let isMongoDBConnected = false;
+
 mongoose.connection.on("connected", () => {
     if (!isMongoDBConnected) {
         console.log("MongoDB connection successful");
@@ -33,26 +47,10 @@ mongoose.connection.on("connected", () => {
     }
 });
 
+if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+}
+
 const server = app.listen(port, () => {
     console.log(`Listening at port ${port}`)
-})
-
-// const io = socket(server, {
-//     cors: {
-//       origin: "http://localhost:3000",
-//       credentials: true,
-//     },
-//   });
-
-//   io.on("connection", (socket)=>{
-//     console.log("A user connected...")
-
-//     socket.on('host-updated',()=>{
-//         io.emit('host-updated')
-//     })
-    
-//     socket.on('disconnect',()=>{
-//         console.log("A user disconnected")
-//     })
-//   })
-  
+});
