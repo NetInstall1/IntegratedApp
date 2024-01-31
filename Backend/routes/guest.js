@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
-const GUEST = mongoose.model('GUEST')
+const GUEST = mongoose.model('Guest')
 const { EventEmitter } = require('events')
 
 const eventEmitter = new EventEmitter()
@@ -36,6 +36,21 @@ router.get('/api/guestInfo',(req, res)=>{
     })
 })
 
+router.get('/api/guestInfo/:guestIp', async (req, res) => {
+    const guestIp = req.params.guestIp;
+    try {
+        const guestData = await GUEST.findOne({ ip_address: guestIp });
+        console.log(guestData)
+        if (!guestData) {
+            return res.status(404).send('Guest not found');
+        }
+        res.json(guestData);
+    } catch (err) {
+        console.error('Error fetching guest info:', err);
+        res.status(500).send('Server error');
+    }
+});
+
 router.post('/scan_result', async(req, res) => {
     console.log('scan result')
     console.log("body:", req.body)
@@ -56,11 +71,12 @@ router.post('/scan_result', async(req, res) => {
 router.post('/api/agent-update-guest/:guest_ip', async(req, res)=>{
     const guest_ip = req.params.guest_ip
     const _action = req.body.action
-    console.log(guest_ip, _action)
+    const details = req.body.details
+    console.log(req.body)
     try{
         const updated_guest = await GUEST.findOneAndUpdate(
             { 'ip_address': guest_ip }, 
-            { $set: { 'action': _action } },
+            { $set: { 'action': _action , details: details }},
             { new: true }
           );
           console.log(`Updated guest: ${updated_guest}`)
@@ -71,4 +87,41 @@ router.post('/api/agent-update-guest/:guest_ip', async(req, res)=>{
         res.json({update_status: "Error updating"})
     }
 })
+
+
+router.post('/api/guest-sys-info/:guest_ip', async(req, res)=>{
+    var details = req.body
+
+    // console.log(req.body)
+    // details = JSON.stringify(details)
+    console.log(details)
+    const guest_ip = req.params.guest_ip
+    try{
+        const updated_guest = await GUEST.findOneAndUpdate(
+            { 'ip_address': guest_ip }, 
+            { $set:{details: details}},
+            { new: true }
+          );
+        console.log(updated_guest)
+        res.json({update_status: "successful updation", data: updated_guest})
+    }catch(err){
+        console.log(`error updating the guest:${err}`)
+        res.json({update_status: "Error updating"})
+    }
+})
+
+
+router.post('/api/delete_all_guests', async(req, res)=>{
+    try{
+        await GUEST.deleteMany({})
+        res.status(200).json({
+            "message":"All guests deleted successfully"
+        })
+    } catch (err) {
+        res.status(500).json({
+            "message":"Error ocurred while deleting guests"
+        })
+    }
+})
+
 module.exports = router

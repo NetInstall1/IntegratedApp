@@ -7,7 +7,6 @@ const app = express()
 const path = require('path');
 
 
-
 app.use(bodyParser.json())
 app.use(cors())
 

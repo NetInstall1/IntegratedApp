@@ -1,4 +1,3 @@
-const express = require('express')
 const mongoose = require('mongoose')
 
 const guestSchema = new mongoose.Schema({
@@ -7,9 +6,11 @@ const guestSchema = new mongoose.Schema({
     mac_address: String,
     status: String,
     os:String,
-    action: String,
-    installed_software:[{type: mongoose.Schema.Types.ObjectId, ref: 'SOFTWARE'}]
+    action: {type: String},
+    details:{type: mongoose.Schema.Types.Mixed},
+    agent_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Agent'},
+    installed_software:[{type: mongoose.Schema.Types.ObjectId, ref: 'Software'}]
 })
 
-const GUEST = mongoose.model('GUEST', guestSchema)
-module.exports = GUEST
+const Guest = mongoose.model('Guest', guestSchema)
+module.exports = Guest
