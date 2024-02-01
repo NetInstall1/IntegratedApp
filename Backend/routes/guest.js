@@ -40,9 +40,15 @@ router.post('/scan_result', async(req, res) => {
     console.log('scan result')
     console.log("body:", req.body)
     try{
-        const guestData = req.body
+        const guestData = req.body.scan_result
+        const agent_id = req.body.agent_id
+        console.log(agent_id)
+        console.log(guestData)
+
+        const updatedGuestData = guestData?.map((guest)=>({...guest, agent_id}))
+        console.log(updatedGuestData)
         await GUEST.deleteMany({});
-        const insertedGuests = await GUEST.insertMany(guestData)
+        const insertedGuests = await GUEST.insertMany(updatedGuestData)
         eventEmitter.emit('scan_result')
         res.status(201).json({ status: 'successful', insertedGuests });
     }
@@ -109,4 +115,22 @@ router.post('/api/delete_all_guests', async(req, res)=>{
     }
 })
 
+router.get('/api/guests/:agent_id', async (req, res) => {
+    try {
+        const agent_id = req.params.agent_id;
+
+        // Retrieve guests based on the specified agent_id
+        const guests = await GUEST.find({ agent_id });
+        console.log(guests)
+        // Check if guests are found
+        if (guests.length > 0) {
+            res.json(guests);
+        } else {
+            res.json({ message: 'No guests found for the specified agent_id.' });
+        }
+    } catch (err) {
+        console.error(`Error getting guests: ${err}`);
+        res.status(500).json({ error: 'Error getting guests.' });
+    }
+});
 module.exports = router

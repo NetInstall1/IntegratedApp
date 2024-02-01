@@ -19,9 +19,10 @@ const usersAgent = asyncHandler(async (req, res)=>{
     const agents = await Agent.find({user_id:_id})
 
     if(!agents){
-        throw new Error(`Error getting user's agents`)
+        res.json({agents:[]})
     }
     res.json(agents)
+
 })
 
 
@@ -34,13 +35,17 @@ const createAgent = asyncHandler(async (req, res)=>{
     if(!ip_range || !agent_name || !guest_user || !guest_pass){
         return res.status(400).json({ error: 'Some information is missing' });
     }
+    if(!user_id){
+        return res.status(400).json({error:"No user id found"})
+    }
     const agent_name_unique = await Agent.find({agent_name})
+    console.log("Already existing agent")
     console.log(agent_name_unique)
-    if(agent_name_unique){
+    if(agent_name_unique.length >0){
         return res.status(400).json({ error: 'Agent with this name already exists' });
     }
 
-    await Agent.create({
+    const agent = await Agent.create({
         agent_name,
         guest_pass,
         guest_user,
@@ -48,7 +53,8 @@ const createAgent = asyncHandler(async (req, res)=>{
     })
 
     res.json({
-        message:`Agent created!!`
+        message:`Agent created!!`,
+        agent_id: agent._id
     })
 
 })
