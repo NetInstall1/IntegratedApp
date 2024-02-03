@@ -25,7 +25,7 @@ router.post('/api/authenticate', async (req, res) => {
 
 router.post('/api/create-user', async (req, res) => {
     try {
-      const { user_email, user_pass } = req.body;
+      const { user_email, user_pass, user_name } = req.body;
   
       // Check if the user with the provided email already exists
       const existingUser = await USER.findOne({ user_email });
@@ -35,7 +35,7 @@ router.post('/api/create-user', async (req, res) => {
       }
   
       // Create a new user
-      const newUser = new USER({ user_email, user_pass });
+      const newUser = new USER({ user_email, user_pass, user_name });
       await newUser.save();
   
       res.status(201).json({ message: 'User created successfully', user: newUser });

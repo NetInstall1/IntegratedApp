@@ -4,6 +4,7 @@ const express = require('express')
 
 const userSchema = mongoose.Schema({
     user_email: String,
+    user_name: String,
     user_pass: String,
     last_login: {
         type: String,

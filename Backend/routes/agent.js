@@ -17,6 +17,28 @@ router.post('/api/create-agent', async (req, res) => {
     }
 })
 
+
+let disconnectFlag = false;
+
+router.post('/api/agent-disconnect', (req, res) => {
+    disconnectFlag = true;
+    console.log("Disconnect clicked")
+    res.status(200).json({ message: 'Disconnect signal sent to agent.' });
+});
+
+
+router.get('/api/check-disconnect', (req, res) => {
+    if (disconnectFlag) {
+        // Reset the flag after sending it once
+        disconnectFlag = false;
+        res.json({ disconnect: true });
+    } else {
+        res.json({ disconnect: false });
+    }
+});
+
+
+
 router.post('/api/update-agent', async (req, res) => {
     try {
         console.log(req.body)

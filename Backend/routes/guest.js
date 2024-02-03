@@ -25,6 +25,25 @@ router.get('/api/scan', (req, res) => {
     })
 })
 
+router.post('/api/deploy', async (req, res) => {
+    const { ip_addresses } = req.body; // Array of IP addresses
+
+    // Logic to initiate the deployment process
+
+    res.json({ message: 'Deployment command issued.' });
+});
+
+router.get('/api/guest-ip-addresses', async (req, res) => {
+    try {
+        const guests = await GUEST.find({}, 'ip_address -_id');
+        const ipAddresses = guests.map(guest => guest.ip_address);
+        res.json(ipAddresses);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching IP addresses');
+    }
+});
+
 router.get('/api/guestInfo',(req, res)=>{
     GUEST.find()
     .then((result)=>{
