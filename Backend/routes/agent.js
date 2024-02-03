@@ -38,8 +38,5 @@ router.get('/api/all-agent', (req, res) => {
 
 
 
-router.post('/api/deploy', (req, res)=>{
-    const deploy_info = req.body
-    console.log(deploy_info)
-})
+
 module.exports = router

@@ -14,6 +14,14 @@ router.get('/api/agent-do', (req, res) => {
         })
     })
 
+    eventEmitter.once('agentDeploy', (ip_address)=>{
+        console.log(ip_address)
+        res.json({
+            work:"deploy",
+            ip_address
+        })
+    })
+
 })
 
 router.get('/api/scan', (req, res) => {
@@ -25,6 +33,16 @@ router.get('/api/scan', (req, res) => {
     })
 })
 
+router.post('/api/deploy', (req, res)=>{
+    const deploy_info = req.body
+    eventEmitter.emit('agentDeploy', deploy_info)
+    // eventEmitter.once('scan_result',async ()=>{
+    //     const guestData = await GUEST.find()
+    //     res.json(guestData)
+    // })
+    res.end()
+    console.log(deploy_info)
+})
 router.get('/api/guestInfo',(req, res)=>{
     GUEST.find()
     .then((result)=>{
